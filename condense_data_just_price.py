@@ -34,7 +34,8 @@ class PriceDatabase(object):
 			if first:
 				self.add_first_currency(fl)
 				first = False
-			self.add_currency(fl)
+			else:
+				self.add_currency(fl)
 
 
 	def add_first_currency(self, filename):
