@@ -15,7 +15,8 @@ map_of_datapoints ={}
 import csv
 # either make a directory walker or modify the filename 
 OFFSET_FOR_DOLLAR_VALUE = 3
-with open('bitcoin.txt', 'rb') as csvfile:
+output_file = open("trend_data_bitcoin.txt", 'w')
+with open('data/5-minute/bitcoin.txt', 'rb') as csvfile:
     rdr = reversed(list(csv.reader(csvfile, delimiter='|', quoting=csv.QUOTE_NONE)))
     count = 0
     for i in xrange(-6,0):
@@ -53,7 +54,9 @@ with open('bitcoin.txt', 'rb') as csvfile:
 # Uncomment the following print statements for debugging
 #        print printstring
 #        print a.data
-        print is_trending
+        
+        output_file.write(str(is_trending))
+        output_file.write("\n")
         
         count += 1
 
