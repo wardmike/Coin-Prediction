@@ -30,7 +30,8 @@ class PriceDatabase(object):
 			if first:
 				self.add_first_currency(fl)
 				first = False
-			self.add_currency(fl)
+			else:
+				self.add_currency(fl)
 
 
 	def add_first_currency(self, filename):
@@ -69,6 +70,7 @@ class PriceDatabase(object):
 	def print_to_file(self, filename):
 		fl = open(filename, 'w')
 		currList = "Date"
+		i = 0
 		for curr in self.currencies:
 			currList += ","
 			currList += curr + "_usd"
@@ -81,11 +83,13 @@ class PriceDatabase(object):
 			currList += ","
 			currList += curr + "_24hr"
 		fl.write(currList)
+		fl.write("\n")
 
 		for time in self.times:
 			fl.write(time.print_line())
+			fl.write("\n")
 
 
 if __name__ == '__main__':
 	data = PriceDatabase()
-	data.print_to_file("output.csv")
+	data.print_to_file("full_data.csv")
