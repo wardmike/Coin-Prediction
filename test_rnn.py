@@ -19,14 +19,14 @@ mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 # 10 classes, 0-9
 # where if input 0, output 0
 
-hm_epochs = 3
-n_classes = 10
+hm_epochs = 3 #number of epochs
+n_classes = 10 #number of output possibilities i.e. (0-9)
 batch_size = 128 # will do batches of 100 images at a time
 #do this to not take up all of your memory
 
-chunk_size = 28
-n_chunks = 28
-rnn_size = 512
+chunk_size = 28 #our case, 5, for each number of data in every currency for each line of code
+n_chunks = 28	#number of chunks per line, our case, 34. all 34 currencies 
+rnn_size = 512	#slightly arbritrary number
 
 x = tf.placeholder('float', [None, n_chunks, chunk_size]) #second parameter defines input for x, if doesn't fit paramater, error will be thrown
 y = tf.placeholder('float')
@@ -38,6 +38,8 @@ def recurrent_neural_network_model(x):
 	layer = {'weights':tf.Variable(tf.random_normal([rnn_size, n_classes])),
 			 'biases':tf.Variable(tf.random_normal([n_classes]))}
 	
+	#linear algebra that manipulates the input data matrix
+
 	x = tf.transpose(x, [1, 0, 2])
 	x = tf.reshape(x, [-1, chunk_size])
 	x = tf.split(x, n_chunks, 0)
