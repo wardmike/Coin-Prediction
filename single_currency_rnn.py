@@ -184,8 +184,10 @@ test_data_feed = {
 }
 
 print "\n\n"
-print "Test Target Values:"
-print currency_data_set_test.test_y
+test_y_out = open("results/test_y_new.txt", 'w+')
+for i in currency_data_set_test.test_y:
+	test_y_out.write(str(format(i[0], '.8f')))
+	test_y_out.write("\n")
 print "\n\n"
 
 
@@ -218,7 +220,10 @@ with tf.Session() as sess:
 	test_acc, test_loss, test_pred = sess.run([accuracy, loss, prediction], test_data_feed)
 	
 
-	print "Prediction was: ", test_pred
+	pred_out = open("results/prediction_new.txt", 'w+')
+ 	for i in test_pred:
+		pred_out.write(str(format(i[0], '.8f')))
+		pred_out.write("\n")
 	print "Test Loss was: ", test_loss
 	print "\n"
 #	print "Accuracy was: ", test_acc
