@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import random
 import time
+import sys
 
 
 random.seed(time.time())
@@ -78,7 +79,7 @@ class currency_data(object):
 
 
 #easily configure values up-top
-class RNNConfig():
+class RNNConfig(object):
     input_size=1
     num_steps=30
     lstm_size=128
@@ -89,9 +90,11 @@ class RNNConfig():
     learning_rate_decay = 0.99
     init_epoch = 1
     max_epoch = 50
-    currency_name = "ethereum"
 
-config = RNNConfig()
+    def __init__(self, currency_name):
+    	self.currency_name = currency_name
+
+config = RNNConfig(sys.argv[1])
 
 
 #values to use in session
