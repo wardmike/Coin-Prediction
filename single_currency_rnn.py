@@ -55,19 +55,17 @@ class currency_data(object):
 
 
 	def get_training_data(self):
-		inputFile = open("data/USDT_BTC 30-Minute.csv")
+#		inputFile = open("data/daily-just-prices/bitcoin.txt")
+#		input_data = []
+#		for line in inputFile:
+#			input_data.append(float(line.strip()))
+
+		inputFile = open("data/5-minute/" + self.currency_name + ".txt")
 
 		input_data = []
 		for line in inputFile:
-			vals = line.split(",")
-			input_data.append(float(vals[7]))
-
-#		inputFile = open("data/5-minute/" + self.currency_name + ".txt")
-#
-#		input_data = []
-#		for line in inputFile:
-#			vals = line.split("|")
-#			input_data.append(float(vals[3]))
+			vals = line.split("|")
+			input_data.append(float(vals[3]))
 
 		inputFile.close()
 		return np.array(input_data)
@@ -125,10 +123,10 @@ class RNNConfig(object):
     	self.num_layers = 2
     	self.keep_prob = 0.8
     	self.batch_size = 64
-    	self.init_learning_rate = 0.001
+    	self.init_learning_rate = 0.002
     	self.learning_rate_decay = 0.99
     	self.init_epoch = 5
-    	self.max_epoch = 50
+    	self.max_epoch = 75
 
 config = RNNConfig(sys.argv[1])
 
@@ -185,6 +183,7 @@ test_data_feed = {
 
 print "\n\n"
 test_y_out = open("results/test_y_new.txt", 'w+')
+test_y_out.write(config.currency_name)
 for i in currency_data_set_test.test_y:
 	test_y_out.write(str(format(i[0], '.8f')))
 	test_y_out.write("\n")
@@ -220,7 +219,8 @@ with tf.Session() as sess:
 	test_acc, test_loss, test_pred = sess.run([accuracy, loss, prediction], test_data_feed)
 	
 
-	pred_out = open("results/prediction_new.txt", 'w+')
+	file_output_url = "results/prediction_" + config.currency_name + "_5min.txt"
+	pred_out = open(file_output_url, 'w+')
  	for i in test_pred:
 		pred_out.write(str(format(i[0], '.8f')))
 		pred_out.write("\n")
