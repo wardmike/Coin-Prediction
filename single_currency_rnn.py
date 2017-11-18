@@ -120,7 +120,7 @@ class RNNConfig(object):
     	self.init_learning_rate = 0.001
     	self.learning_rate_decay = 0.99
     	self.init_epoch = 5
-    	self.max_epoch = 5
+    	self.max_epoch = 50
 
 config = RNNConfig(sys.argv[1])
 
@@ -176,8 +176,11 @@ test_data_feed = {
 }
 
 print "\n\n"
-print "Test Target Values:"
-print currency_data_set_test.test_y
+#print "Test Target Values:"
+test_y_out = open("results/test_y.txt", 'w+')
+for i in currency_data_set_test.test_y:
+	test_y_out.write(str(format(i[0], '.8f')))
+	test_y_out.write("\n")
 print "\n\n"
 
 
@@ -210,7 +213,11 @@ with tf.Session() as sess:
 	test_acc, test_loss, test_pred = sess.run([accuracy, loss, prediction], test_data_feed)
 	
 
-	print "Prediction was: ", test_pred
+	#print "Prediction was: ", test_pred
+	pred_out = open("results/prediction.txt", 'w+')
+	for i in test_pred:
+		pred_out.write(str(format(i[0], '.8f')))
+		pred_out.write("\n")
 	print "Test Loss was: ", test_loss
 	print "\n"
 #	print "Accuracy was: ", test_acc
