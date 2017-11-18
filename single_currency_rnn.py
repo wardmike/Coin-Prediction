@@ -10,24 +10,51 @@ random.seed(time.time())
 
 
 class currency_data(object):
-	def __init__(self, currency_name, input_size):
+	def __init__(self, currency_name, input_size, training):
 		self.currency_name = currency_name
 		self.input_size = input_size
 		self.normalized = True
 		self.num_steps = 30
 		self.test_ratio = 0.1
+		self.training = training
 
-		self.price_data = self.readInputFile()
+		self.price_data = self.get_specific_currency_data(currency_name)
 
 		self.train_X, self.train_y, self.test_X, self.test_y = self._prepare_data(self.price_data)
 
 
+	def get_file_name(self, training):
+		if training:
+			return "data/condensed/data_just_prices_90.csv"
+		else:
+			return "data/condensed/data_just_prices_10.csv"
+
+
+	def get_specific_currency_data(self, currency_name):
+		text_file_column = 0
+		input_data = []
+
+		file_name = self.get_file_name(self.training)
+
+		with open(file_name) as input_file:
+
+			first_line = input_file.readline().strip()
+			currency_ids = first_line.split(",")
+
+			for i in range(len(currency_ids)):
+				if currency_name == currency_ids[i]:
+					text_file_column = i
+
+
+			for line in input_file:
+				vals = line.split(",")
+				input_data.append(float(vals[text_file_column]))
+
+		return np.array(input_data)
 
 
 
-
-
-	def readInputFile(self):
+	def get_training_data(self):
 		inputFile = open("data/5-minute/" + self.currency_name + ".txt")
 
 		input_data = []
@@ -135,13 +162,13 @@ optimizer = tf.train.RMSPropOptimizer(learning_rate)
 minimize = optimizer.minimize(loss)
 
 #get a dataset for testing, then test
-currency_data_set = currency_data(config.currency_name, config.input_size)
+currency_data_set_test = currency_data(config.currency_name, config.input_size, False)
 
 
 test_data_feed = {
 	learning_rate: 0.0,
-	inputs: currency_data_set.test_X,
-	targets: currency_data_set.test_y
+	inputs: currency_data_set_test.test_X,
+	targets: currency_data_set_test.test_y
 }
 
 
@@ -156,11 +183,9 @@ with tf.Session() as sess:
 	numberOfTestLosses = 0
 
 	for epoch_step in range(config.max_epoch):
-		current_lr = config.init_learning_rate
-		if epoch_step == config.max_epoch-1:
-			current_lr = 0.0
+		current_lr = config.init_learning_rate * (config.learning_rate_decay ** max(float(epoch_step + 1 - config.init_epoch), 0.0))
 
-		for batch_X, batch_y in currency_data(config.currency_name, config.input_size).generate_one_epoch(config.batch_size):
+		for batch_X, batch_y in currency_data(config.currency_name, config.input_size, True).generate_one_epoch(config.batch_size):
 			global_step += 1
 			train_data_feed = {
 				inputs: batch_X, 
@@ -169,16 +194,19 @@ with tf.Session() as sess:
 			}
 
 			train_loss, _ = sess.run([loss, minimize], train_data_feed)
-			if epoch_step == config.max_epoch-1:
-				test_loss, test_pred = sess.run([loss, prediction], test_data_feed)
-				numberOfTestLosses += 1
-				sumTestLoss += test_loss
+			
 
 
 		print "Epoch " + str(epoch_step) + " completed."
 
-	averageTestLoss = sumTestLoss/numberOfTestLosses
-	print "Average Test Loss was: ", averageTestLoss
+	
+	test_loss, test_pred = sess.run([loss, prediction], test_data_feed)
+	
+
+	print "Prediction was: ", test_pred
+	print "Test Loss was: ", test_loss
+	print "\n"
+	
 
 
 
