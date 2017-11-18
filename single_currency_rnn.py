@@ -55,13 +55,21 @@ class currency_data(object):
 
 
 	def get_training_data(self):
-		inputFile = open("data/5-minute/" + self.currency_name + ".txt")
+		inputFile = open("data/USDT_BTC 30-Minute.csv")
 
 		input_data = []
 		for line in inputFile:
-			vals = line.split("|")
-			input_data.append(float(vals[3]))
+			vals = line.split(",")
+			input_data.append(float(vals[7]))
 
+#		inputFile = open("data/5-minute/" + self.currency_name + ".txt")
+#
+#		input_data = []
+#		for line in inputFile:
+#			vals = line.split("|")
+#			input_data.append(float(vals[3]))
+
+		inputFile.close()
 		return np.array(input_data)
 
 
@@ -111,11 +119,11 @@ class RNNConfig(object):
 
     def __init__(self, currency_name):
     	self.currency_name = currency_name
-    	self.input_size=1
-    	self.num_steps=30
-    	self.lstm_size=128
-    	self.num_layers=1
-    	self.keep_prob=0.8
+    	self.input_size = 1
+    	self.num_steps = 30
+    	self.lstm_size = 128
+    	self.num_layers = 2
+    	self.keep_prob = 0.8
     	self.batch_size = 64
     	self.init_learning_rate = 0.001
     	self.learning_rate_decay = 0.99
@@ -176,11 +184,8 @@ test_data_feed = {
 }
 
 print "\n\n"
-#print "Test Target Values:"
-test_y_out = open("results/test_y.txt", 'w+')
-for i in currency_data_set_test.test_y:
-	test_y_out.write(str(format(i[0], '.8f')))
-	test_y_out.write("\n")
+print "Test Target Values:"
+print currency_data_set_test.test_y
 print "\n\n"
 
 
@@ -213,16 +218,14 @@ with tf.Session() as sess:
 	test_acc, test_loss, test_pred = sess.run([accuracy, loss, prediction], test_data_feed)
 	
 
-	#print "Prediction was: ", test_pred
-	pred_out = open("results/prediction.txt", 'w+')
-	for i in test_pred:
-		pred_out.write(str(format(i[0], '.8f')))
-		pred_out.write("\n")
+	print "Prediction was: ", test_pred
 	print "Test Loss was: ", test_loss
 	print "\n"
 #	print "Accuracy was: ", test_acc
 
 	
+
+
 
 
 
