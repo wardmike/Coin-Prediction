@@ -80,19 +80,19 @@ class currency_data(object):
 
 #easily configure values up-top
 class RNNConfig(object):
-    input_size=1
-    num_steps=30
-    lstm_size=128
-    num_layers=1
-    keep_prob=0.8
-    batch_size = 64
-    init_learning_rate = 0.001
-    learning_rate_decay = 0.99
-    init_epoch = 1
-    max_epoch = 50
 
     def __init__(self, currency_name):
     	self.currency_name = currency_name
+    	self.input_size=1
+    	self.num_steps=30
+    	self.lstm_size=128
+    	self.num_layers=1
+    	self.keep_prob=0.8
+    	self.batch_size = 64
+    	self.init_learning_rate = 0.001
+    	self.learning_rate_decay = 0.99
+    	self.init_epoch = 1
+    	self.max_epoch = 50
 
 config = RNNConfig(sys.argv[1])
 
