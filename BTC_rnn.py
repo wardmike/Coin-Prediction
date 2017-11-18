@@ -1,9 +1,10 @@
 import tensorflow as tf
 import numpy as np
 import random
+import time
 
 
-random.seed(1)
+random.seed(time.time())
 
 
 
@@ -87,7 +88,8 @@ class RNNConfig():
     init_learning_rate = 0.001
     learning_rate_decay = 0.99
     init_epoch = 1
-    max_epoch = 3
+    max_epoch = 50
+    currency_name = "ethereum"
 
 config = RNNConfig()
 
@@ -129,16 +131,34 @@ loss = tf.reduce_mean(tf.square(prediction - targets))
 optimizer = tf.train.RMSPropOptimizer(learning_rate)
 minimize = optimizer.minimize(loss)
 
+#get a dataset for testing, then test
+currency_data_set = currency_data(config.currency_name, config.input_size)
+
+
+test_data_feed = {
+	learning_rate: 0.0,
+	inputs: currency_data_set.test_X,
+	targets: currency_data_set.test_y
+}
+
 
 
 
 with tf.Session() as sess:
 	tf.global_variables_initializer().run()
 
+	global_step = 0
+
+	sumTestLoss = 0
+	numberOfTestLosses = 0
+
 	for epoch_step in range(config.max_epoch):
 		current_lr = config.init_learning_rate
+		if epoch_step == config.max_epoch-1:
+			current_lr = 0.0
 
-		for batch_X, batch_y in currency_data("bitcoin", config.input_size).generate_one_epoch(config.batch_size):
+		for batch_X, batch_y in currency_data(config.currency_name, config.input_size).generate_one_epoch(config.batch_size):
+			global_step += 1
 			train_data_feed = {
 				inputs: batch_X, 
 				targets: batch_y, 
@@ -146,12 +166,17 @@ with tf.Session() as sess:
 			}
 
 			train_loss, _ = sess.run([loss, minimize], train_data_feed)
+			if epoch_step == config.max_epoch-1:
+				test_loss, test_pred = sess.run([loss, prediction], test_data_feed)
+				numberOfTestLosses += 1
+				sumTestLoss += test_loss
+
 
 		print "Epoch " + str(epoch_step) + " completed."
 
-#	correct = tf.equal(tf.argmax(prediction,1), tf.argmax(y,1))
-#	accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-#	print('Accuracy:', accuracy.eval())
+	averageTestLoss = sumTestLoss/numberOfTestLosses
+	print "Average Test Loss was: ", averageTestLoss
+
 
 
 
