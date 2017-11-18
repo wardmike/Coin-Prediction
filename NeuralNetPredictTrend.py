@@ -45,7 +45,7 @@ class NeuralNetwork():
 			prices = map(float, line.split(","))
 			input_prices.append(prices)
 
-		return np.array(input_prices, dtype = np.float256)
+		return np.array(input_prices, dtype = np.float128)
 
 	def readOutputFile(self, fileName):
 		outputFile = open(fileName)
