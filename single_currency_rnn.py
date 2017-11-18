@@ -10,7 +10,7 @@ random.seed(time.time())
 
 
 class currency_data(object):
-	def __init__(self, currency_name, input_size, training):
+	def __init__(self, currency_name, input_size):
 		self.currency_name = currency_name
 		self.input_size = input_size
 		self.normalized = True
@@ -18,11 +18,11 @@ class currency_data(object):
 		self.test_ratio = 0.1
 		self.training = training
 
-		self.price_data = self.get_specific_currency_data(currency_name)
+		self.price_data = self.get_training_data(currency_name)
 
 		self.train_X, self.train_y, self.test_X, self.test_y = self._prepare_data(self.price_data)
 
-
+"""
 	def get_file_name(self, training):
 		if training:
 			return "data/condensed/data_just_prices_90.csv"
@@ -51,7 +51,7 @@ class currency_data(object):
 				input_data.append(float(vals[text_file_column]))
 
 		return np.array(input_data)
-
+"""
 
 
 	def get_training_data(self):
@@ -119,7 +119,7 @@ class RNNConfig(object):
     	self.init_learning_rate = 0.001
     	self.learning_rate_decay = 0.99
     	self.init_epoch = 1
-    	self.max_epoch = 50
+    	self.max_epoch = 3
 
 config = RNNConfig(sys.argv[1])
 
@@ -162,7 +162,7 @@ optimizer = tf.train.RMSPropOptimizer(learning_rate)
 minimize = optimizer.minimize(loss)
 
 #get a dataset for testing, then test
-currency_data_set_test = currency_data(config.currency_name, config.input_size, False)
+currency_data_set_test = currency_data(config.currency_name, config.input_size)
 
 
 test_data_feed = {
@@ -206,7 +206,10 @@ with tf.Session() as sess:
 	print "Prediction was: ", test_pred
 	print "Test Loss was: ", test_loss
 	print "\n"
-	
+
+	correct = tf.equal(tf.argmax(prediction,1), tf.argmax(currency_data_set_test.test_y,1))
+	accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
+	print('Accuracy:', accuracy.eval(test_data_feed))
 
 
 
