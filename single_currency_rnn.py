@@ -10,19 +10,19 @@ random.seed(time.time())
 
 
 class currency_data(object):
-	def __init__(self, currency_name, input_size):
+	def __init__(self, currency_name, input_size, num_steps):
 		self.currency_name = currency_name
 		self.input_size = input_size
+		self.num_steps = num_steps
 		self.normalized = True
-		self.num_steps = 30
 		self.test_ratio = 0.1
-		self.training = training
+		
 
-		self.price_data = self.get_training_data(currency_name)
+		self.price_data = self.get_training_data()
 
 		self.train_X, self.train_y, self.test_X, self.test_y = self._prepare_data(self.price_data)
 
-"""
+	"""
 	def get_file_name(self, training):
 		if training:
 			return "data/condensed/data_just_prices_90.csv"
@@ -51,7 +51,7 @@ class currency_data(object):
 				input_data.append(float(vals[text_file_column]))
 
 		return np.array(input_data)
-"""
+	"""
 
 
 	def get_training_data(self):
@@ -72,7 +72,8 @@ class currency_data(object):
 #			newSeq.append(np.array(seq[i * self.input_size: (i + 1) * self.input_size]))
 
 #		seq = newSeq
-
+		
+		#splitting input_data into groups of input_size
 		seq = [np.array(seq[i * self.input_size: (i + 1) * self.input_size]) for i in range(len(seq) // self.input_size)]
 
 		if self.normalized:
@@ -118,8 +119,8 @@ class RNNConfig(object):
     	self.batch_size = 64
     	self.init_learning_rate = 0.001
     	self.learning_rate_decay = 0.99
-    	self.init_epoch = 1
-    	self.max_epoch = 3
+    	self.init_epoch = 5
+    	self.max_epoch = 5
 
 config = RNNConfig(sys.argv[1])
 
@@ -161,8 +162,11 @@ loss = tf.reduce_mean(tf.square(prediction - targets))
 optimizer = tf.train.RMSPropOptimizer(learning_rate)
 minimize = optimizer.minimize(loss)
 
+correct_prediction = tf.equal(tf.argmax(prediction, 1), tf.argmax(targets, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
 #get a dataset for testing, then test
-currency_data_set_test = currency_data(config.currency_name, config.input_size)
+currency_data_set_test = currency_data(config.currency_name, config.input_size, config.num_steps)
 
 
 test_data_feed = {
@@ -171,7 +175,10 @@ test_data_feed = {
 	targets: currency_data_set_test.test_y
 }
 
-
+print "\n\n"
+print "Test Target Values:"
+print currency_data_set_test.test_y
+print "\n\n"
 
 
 with tf.Session() as sess:
@@ -185,7 +192,7 @@ with tf.Session() as sess:
 	for epoch_step in range(config.max_epoch):
 		current_lr = config.init_learning_rate * (config.learning_rate_decay ** max(float(epoch_step + 1 - config.init_epoch), 0.0))
 
-		for batch_X, batch_y in currency_data(config.currency_name, config.input_size, True).generate_one_epoch(config.batch_size):
+		for batch_X, batch_y in currency_data(config.currency_name, config.input_size, config.num_steps).generate_one_epoch(config.batch_size):
 			global_step += 1
 			train_data_feed = {
 				inputs: batch_X, 
@@ -200,16 +207,15 @@ with tf.Session() as sess:
 		print "Epoch " + str(epoch_step) + " completed."
 
 	
-	test_loss, test_pred = sess.run([loss, prediction], test_data_feed)
+	test_acc, test_loss, test_pred = sess.run([accuracy, loss, prediction], test_data_feed)
 	
 
 	print "Prediction was: ", test_pred
 	print "Test Loss was: ", test_loss
 	print "\n"
+#	print "Accuracy was: ", test_acc
 
-	correct = tf.equal(tf.argmax(prediction,1), tf.argmax(currency_data_set_test.test_y,1))
-	accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-	print('Accuracy:', accuracy.eval(test_data_feed))
+	
 
 
 
