@@ -1,14 +1,15 @@
-from numpy import exp, array, random, dot
+import numpy as np
 
 class NeuralNetwork():
-	def __init_(self):
+	def __init__(self):
 
-		random.seed(1)
+		np.random.seed(1)
 
-		self.synaptic_weights = 2 * random.random((34, 1)) - 
+		self.synaptic_weights = 2 * np.random.random((34, 1)) - 1
 
 	def __sigmoid(self, x):
-		return 1/(1+exp(-x))
+		print 1/(1+np.exp(-x))
+		return 1/(1+np.exp(-x))
 
 	def __sigmoid_derivative(self, x):
 		return x * (1-x)
@@ -19,32 +20,47 @@ class NeuralNetwork():
 
 			error = training_set_outputs - output
 
-			adjustment = dot(training_set_inputs.T, error * self.__sigmoid_derivative(output))
+			adjustment = np.dot(training_set_inputs.T, error * self.__sigmoid_derivative(output))
 			self.synaptic_weights += adjustment
 
 
 	def think(self, inputs):
-		return self.__sigmoid(dot(inputs, self.synaptic_weights))
+		return self.__sigmoid(np.dot(inputs, self.synaptic_weights))
 
 	def readInputFile(self, fileName):
 		inputFile = open(fileName)
 
-		next(inputFile)
 		input_prices = []
-		for line in inputFile:
+		lines = inputFile.readlines()[1:]
+
+		
+
+		self.lastLine_inputFile = lines[-1]
+
+		self.lastLine_prices = map(float, self.lastLine_inputFile.split(","))
+
+		print self.lastLine_inputFile
+
+		for line in lines[:-1]:
 			prices = map(float, line.split(","))
 			input_prices.append(prices)
 
-		return array(input_prices)
+		return np.array(input_prices, dtype = np.float256)
 
 	def readOutputFile(self, fileName):
 		outputFile = open(fileName)
 
+		output_value_outer = []
 		output_value = []
-		for line in outputFile:
+		lines = outputFile.readlines()[:-1]
+		for line in lines:
 			output_value.append(int(line))
 
-		return array(output_value)
+		outputFile.close()
+
+		output_value_outer.append(output_value)
+
+		return np.array(output_value_outer)
 
 
 
@@ -62,10 +78,13 @@ if __name__ == "__main__":
 	training_set_inputs = neural_network.readInputFile("data_just_prices.csv")
 	training_set_outputs = neural_network.readOutputFile("trend_data_bitcoin.txt").T
 
-	neural_network.train(training_set_inputs, training_set_outputs, 50)
+	neural_network.train(training_set_inputs, training_set_outputs, 10)
 
 	print "New synaptic weights after training: "
 	print neural_network.synaptic_weights
+
+	print "Test on last line, should be a zero: "
+	print neural_network.think(np.array(neural_network.lastLine_prices))
 
 
 
