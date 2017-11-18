@@ -32,4 +32,3 @@ tenx
 tether
 waves
 zcash
-
