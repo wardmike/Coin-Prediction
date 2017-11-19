@@ -182,11 +182,13 @@ test_data_feed = {
 }
 
 print "\n\n"
-test_y_out = open("results/test_y_new.txt", 'w+')
-test_y_out.write(config.currency_name)
+
+y_output_url = "results/testy_" + config.currency_name + "_5min.txt"
+test_y_out = open(y_output_url, 'w+')
 for i in currency_data_set_test.test_y:
 	test_y_out.write(str(format(i[0], '.8f')))
 	test_y_out.write("\n")
+test_y_out.close()
 print "\n\n"
 
 
