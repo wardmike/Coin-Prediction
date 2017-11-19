@@ -1,6 +1,8 @@
 # Coin Prediction
 
-Neural networks to predict cryptocurrency prices!
+:bar_chart: Neural networks to predict cryptocurrency prices!  
+
+:trophy: First place in the Data Analytics Category at HackUSU, November 2017.
 
 ## Results
 
