@@ -1,8 +1,12 @@
 # Coin Prediction
 
-:bar_chart: Neural networks to predict cryptocurrency prices!  
+:bar_chart: Neural networks to predict cryptocurrency prices.  
 
 :trophy: First place in the Data Analytics Category at HackUSU, November 2017.
+
+:man: Team: Mike Ward, Eric Bell, and Stanford Cline.
+
+:mortar_board: Advisor: Professor Andy Brim, Utah State University.
 
 ## Results
 
